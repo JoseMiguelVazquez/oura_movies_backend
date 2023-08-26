@@ -3,55 +3,48 @@ const Movie = require('../models/moviesModel')
 
 
 const getMovies = asyncHandler(async (req, res) => {
-    const tareas = await Tarea.find({ user: req.user._id })
-    res.status(200).json(tareas)
+    const movies = await Movie.find()
+    res.status(200).json(movies)
 })
 
 const createMovies = asyncHandler(async (req, res) => {
-    if(!req.body.texto) {
+    const {title, overview, backdrop_url, poster_url, release_date, likes} = req.body
+    if(!title || !overview || !backdrop_url || !poster_url || !release_date) {
         res.status(400)
-        throw new Error('Por favor teclea una descripcion a la tarea')
+        throw new Error('Por favor completa la información de la película')
     }
-    // console.log(req.body.texto)
-    const tarea = await Tarea.create({
-        texto: req.body.texto,
-        user: req.user._id
+
+    const newMovie = await Movie.create({
+        title,
+        overview,
+        backdrop_url,
+        poster_url,
+        release_date,
+        likes
     })
-    res.status(201).json(tarea)     
+    res.status(201).json(newMovie)   
 })
 
 const updateLikes = asyncHandler(async (req, res) => {
-    const tarea = await Tarea.findById(req.params.id)
-    if(!tarea){
+    const movieToUpdate = await Movie.findById(req.params.id)
+    if(!movieToUpdate){
         res.status(400)
-        throw new Error('La tarea no existe')
-    }
-    //verifica que la tarea pertenezca al usuario logueado
-    if(tarea.user.toString() !== req.user._id.toString()){
-        res.status(401)
-        throw new Error('Acceso no autorizado')
+        throw new Error('La película no existe')
     }
     else {
-        const tareaUpdated = await Tarea.findByIdAndUpdate(req.params.id, req.body, {new: true})
-        res.status(200).json(tareaUpdated)
+        const updatedMovie = await Movie.findByIdAndUpdate(req.params.id, req.body, {new: true})
+        res.status(200).json(updatedMovie)
     }
 })
 
 const deleteMovies = asyncHandler(async (req, res) => {
-    const tarea = await Tarea.findById(req.params.id)
-    if(!tarea){
+    const movieToDelete = await Movie.findById(req.params.id)
+    if(!movieToDelete){
         res.status(400)
-        throw new Error('La tarea no existe')
-    }
-    //verifica que la tarea pertenezca al usuario logueado
-    if(tarea.user.toString() !== req.user._id.toString()){
-        res.status(401)
-        throw new Error('Acceso no autorizado')
+        throw new Error('La película no existe')
     }
     else {
-        // Dos formas de hacerlo
-        tarea.deleteOne()
-        // const tareaDeleted = await Tarea.findByIdAndDelete(req.params.id)
+        movieToDelete.deleteOne()
         res.status(200).json({ id: req.params.id })
     }
 })
