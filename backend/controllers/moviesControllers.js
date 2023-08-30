@@ -49,9 +49,21 @@ const deleteMovies = asyncHandler(async (req, res) => {
     }
 })
 
+const getOneMovie = asyncHandler(async (req, res) => {
+    const movieToGet = await Movie.findById(req.params.id)
+    if(!movieToGet){
+        res.status(400)
+        throw new Error('La película no existe')
+    }
+    else {
+        res.status(200).json(movieToGet)
+    }
+})
+
 module.exports = {
     getMovies,
     createMovies,
     updateLikes,
-    deleteMovies
+    deleteMovies,
+    getOneMovie
 }
